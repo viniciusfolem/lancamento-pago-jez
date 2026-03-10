@@ -1352,7 +1352,7 @@
       return src.startsWith('fb') || src.startsWith('instagram_') || src.startsWith('facebook_');
     });
     const fbAttributedRev = fbAttributedSales.reduce((s, v) => s + v.value, 0);
-    const cacFB = fbAttributedSales.length > 0 ? totalFBSpent / fbAttributedSales.length : 0;
+    const cpaPago = paidSales.length > 0 ? totalFBSpent / paidSales.length : 0;
     const roasPago = totalFBSpent > 0 ? paidRev / totalFBSpent : 0;
     const paidPct = ((paidSales.length / totalSales) * 100).toFixed(1);
     const orgPct = ((organicSales.length / totalSales) * 100).toFixed(1);
@@ -1431,7 +1431,7 @@
     const kpiGrid = document.getElementById('kpi-grid');
     [
       { label: 'Investimento Ads', value: totalFBSpent, format: 'brl', sub: 'Total gasto Facebook Ads' },
-      { label: 'CAC (via FB Ads)', value: cacFB, format: 'brl', sub: `${fbAttributedSales.length} vendas atribuídas ao FB` },
+      { label: 'CPA (Pago)', value: cpaPago, format: 'brl', sub: `${paidSales.length} vendas pagas (incl. sem UTM)` },
       { label: 'ROAS Pago', value: roasPago, format: 'x', sub: 'Receita pago / Investimento' },
       { label: 'Lucro Pago', value: paidRev - totalFBSpent, format: 'brl', sub: 'Receita pago - Investimento' },
     ].forEach((kpi, i) => {
