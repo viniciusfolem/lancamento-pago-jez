@@ -2,8 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Dashboard de Vendas — Lançamento Pago | Closer 360</title>
+  <meta name="description" content="Dashboard analítico de vendas do lançamento Imersão Profissão Closer">
+  <meta name="theme-color" content="#020617">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
@@ -14,6 +20,7 @@
       --bg-secondary: #0F172A;
       --bg-card: #0F172A;
       --bg-card-hover: #1E293B;
+      --bg-elevated: #131c31;
       --border: #1E293B;
       --border-light: #334155;
       --text-primary: #F8FAFC;
@@ -31,9 +38,15 @@
       --gradient-green: linear-gradient(135deg, #16A34A, #22C55E);
       --gradient-blue: linear-gradient(135deg, #2563EB, #3B82F6);
       --shadow-card: 0 4px 24px rgba(0,0,0,0.3);
+      --shadow-glow-orange: 0 0 60px rgba(234,88,12,0.08);
+      --shadow-glow-green: 0 0 60px rgba(34,197,94,0.08);
       --radius: 16px;
       --radius-sm: 10px;
+      --radius-xs: 6px;
+      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -41,6 +54,8 @@
       color: var(--text-primary);
       min-height: 100vh;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     body::before {
@@ -50,8 +65,8 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(ellipse at 20% 20%, rgba(234,88,12,0.05) 0%, transparent 50%),
-                  radial-gradient(ellipse at 80% 80%, rgba(59,130,246,0.04) 0%, transparent 50%);
+      background: radial-gradient(ellipse at 20% 20%, rgba(234,88,12,0.04) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 80%, rgba(59,130,246,0.03) 0%, transparent 50%);
       pointer-events: none;
       z-index: 0;
     }
@@ -59,7 +74,7 @@
     .container {
       max-width: 1440px;
       margin: 0 auto;
-      padding: 24px 32px;
+      padding: 20px 24px;
       position: relative;
       z-index: 1;
     }
@@ -69,40 +84,44 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 0 32px;
+      padding: 16px 0 28px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 32px;
+      margin-bottom: 28px;
+      gap: 16px;
     }
 
     .header-left {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
+      min-width: 0;
     }
 
     .logo-circle {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
       background: var(--gradient-orange);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 18px;
+      font-size: 17px;
       color: white;
-      box-shadow: 0 0 20px rgba(234,88,12,0.3);
+      box-shadow: 0 0 24px rgba(234,88,12,0.25);
+      flex-shrink: 0;
     }
 
     .header-title h1 {
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 800;
       color: var(--text-primary);
       letter-spacing: -0.5px;
+      line-height: 1.2;
     }
 
     .header-title p {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-secondary);
       margin-top: 2px;
     }
@@ -111,67 +130,74 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 8px 16px;
-      font-size: 12px;
+      padding: 6px 14px;
+      font-size: 11px;
       color: var(--text-secondary);
       display: flex;
       align-items: center;
       gap: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .header-badge .dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--accent-green);
-      animation: pulse 2s infinite;
+      animation: pulse 2s ease-in-out infinite;
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
     }
 
     /* ====== SECTION TITLE ====== */
     .section-title {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text-primary);
-      margin-bottom: 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
     }
 
     .section-title .section-line {
       flex: 1;
       height: 1px;
-      background: var(--border);
+      background: linear-gradient(90deg, var(--border), transparent);
     }
 
     /* ====== 80/20 MACRO CARDS ====== */
     .macro-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 32px;
+      gap: 16px;
+      margin-bottom: 28px;
     }
 
     .macro-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 28px;
+      padding: 24px;
       position: relative;
       overflow: hidden;
-      transition: all 0.3s ease;
+      transition: all var(--transition);
     }
 
     .macro-card:hover {
       border-color: var(--border-light);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
       box-shadow: var(--shadow-card);
     }
+
+    .macro-card.pago:hover { box-shadow: var(--shadow-card), var(--shadow-glow-orange); }
+    .macro-card.organico:hover { box-shadow: var(--shadow-card), var(--shadow-glow-green); }
 
     .macro-card::before {
       content: '';
@@ -179,8 +205,7 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      border-radius: var(--radius) var(--radius) 0 0;
+      height: 3px;
     }
 
     .macro-card.pago::before { background: var(--gradient-orange); }
@@ -190,65 +215,72 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .macro-card-tag {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 13px;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-xs);
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
     }
 
     .macro-card.pago .macro-card-tag {
-      background: rgba(234,88,12,0.15);
+      background: rgba(234,88,12,0.12);
       color: var(--accent-orange-light);
     }
 
     .macro-card.organico .macro-card-tag {
-      background: rgba(34,197,94,0.15);
+      background: rgba(34,197,94,0.12);
       color: var(--accent-green-light);
     }
 
     .macro-pct {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 900;
       color: var(--text-primary);
-      letter-spacing: -1px;
+      letter-spacing: -1.5px;
+      line-height: 1;
     }
 
     .macro-stats {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 16px;
+      gap: 10px;
     }
 
     .macro-stat-item {
       text-align: center;
-      padding: 14px 8px;
-      background: rgba(2,6,23,0.5);
+      padding: 12px 6px;
+      background: rgba(2,6,23,0.6);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
+      transition: background var(--transition);
+    }
+
+    .macro-stat-item:hover {
+      background: rgba(2,6,23,0.9);
     }
 
     .macro-stat-item .stat-value {
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 800;
       color: var(--text-primary);
       letter-spacing: -0.5px;
+      line-height: 1.2;
     }
 
     .macro-stat-item .stat-label {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
       margin-top: 4px;
     }
 
@@ -256,19 +288,19 @@
     .product-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 32px;
+      gap: 14px;
+      margin-bottom: 28px;
     }
 
     .product-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 24px;
+      padding: 20px;
       text-align: center;
       position: relative;
       overflow: hidden;
-      transition: all 0.3s ease;
+      transition: all var(--transition);
     }
 
     .product-card:hover {
@@ -284,7 +316,6 @@
       left: 0;
       right: 0;
       height: 3px;
-      border-radius: var(--radius) var(--radius) 0 0;
     }
 
     .product-card:nth-child(1)::before { background: linear-gradient(135deg, #8B5CF6, #A78BFA); }
@@ -292,50 +323,51 @@
     .product-card:nth-child(3)::before { background: var(--gradient-orange); }
 
     .product-card .product-price {
-      font-size: 14px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .product-card .product-count {
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 900;
       color: var(--text-primary);
       letter-spacing: -1px;
+      line-height: 1.1;
     }
 
     .product-card .product-revenue {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--accent-green);
       font-weight: 600;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     .product-card .product-sub {
       font-size: 11px;
       color: var(--text-muted);
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     /* ====== KPI CARDS ====== */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 32px;
+      gap: 14px;
+      margin-bottom: 28px;
     }
 
     .kpi-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px;
+      padding: 18px;
       position: relative;
       overflow: hidden;
-      transition: all 0.3s ease;
+      transition: all var(--transition);
     }
 
     .kpi-card:hover {
@@ -351,7 +383,6 @@
       left: 0;
       right: 0;
       height: 3px;
-      border-radius: var(--radius) var(--radius) 0 0;
     }
 
     .kpi-card:nth-child(1)::after { background: var(--gradient-orange); }
@@ -360,48 +391,49 @@
     .kpi-card:nth-child(4)::after { background: linear-gradient(135deg, #8B5CF6, #A78BFA); }
 
     .kpi-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .kpi-value {
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 800;
       color: var(--text-primary);
-      letter-spacing: -1px;
+      letter-spacing: -0.8px;
+      line-height: 1.2;
     }
 
     .kpi-sub {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-secondary);
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     /* ====== CHART SECTIONS ====== */
     .charts-row {
       display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-      margin-bottom: 24px;
+      grid-template-columns: 1.8fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
     }
 
     .charts-row-equal {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 24px;
+      gap: 16px;
+      margin-bottom: 20px;
     }
 
     .chart-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 24px;
-      transition: all 0.3s ease;
+      padding: 20px;
+      transition: all var(--transition);
     }
 
     .chart-card:hover {
@@ -410,16 +442,16 @@
     }
 
     .chart-card h3 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--text-primary);
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .chart-card .subtitle {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .chart-wrapper {
@@ -441,13 +473,13 @@
     }
 
     .donut-center-text .big {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 800;
       color: var(--text-primary);
     }
 
     .donut-center-text .small {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-secondary);
     }
 
@@ -455,98 +487,111 @@
     .chart-legend {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-top: 16px;
+      gap: 8px;
+      margin-top: 14px;
     }
 
     .legend-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
-      background: rgba(15,23,42,0.5);
+      padding: 8px 12px;
+      background: rgba(2,6,23,0.5);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-xs);
+      transition: background var(--transition);
+    }
+
+    .legend-item:hover {
+      background: rgba(2,6,23,0.8);
     }
 
     .legend-item-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .legend-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
     }
 
     .legend-label {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       color: var(--text-primary);
     }
 
     .legend-value {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text-primary);
     }
 
     .legend-pct {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-secondary);
-      margin-left: 6px;
+      margin-left: 4px;
     }
 
     /* ====== MINI STATS ====== */
     .mini-stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 14px;
+      margin-bottom: 20px;
     }
 
     .mini-stat {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px 20px;
+      padding: 16px;
       display: flex;
       align-items: center;
-      gap: 14px;
-      transition: all 0.3s ease;
+      gap: 12px;
+      transition: all var(--transition);
     }
 
     .mini-stat:hover {
       border-color: var(--border-light);
       transform: translateY(-1px);
+      box-shadow: var(--shadow-card);
     }
 
     .mini-stat-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 18px;
       flex-shrink: 0;
     }
 
-    .mini-stat-icon.orange { background: rgba(234,88,12,0.15); color: var(--accent-orange-light); }
-    .mini-stat-icon.blue { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
-    .mini-stat-icon.green { background: rgba(34,197,94,0.15); color: var(--accent-green); }
-    .mini-stat-icon.purple { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+    .mini-stat-icon.orange { background: rgba(234,88,12,0.12); color: var(--accent-orange-light); }
+    .mini-stat-icon.blue { background: rgba(59,130,246,0.12); color: var(--accent-blue); }
+    .mini-stat-icon.green { background: rgba(34,197,94,0.12); color: var(--accent-green); }
+    .mini-stat-icon.purple { background: rgba(139,92,246,0.12); color: var(--accent-purple); }
+
+    .mini-stat-info {
+      min-width: 0;
+    }
 
     .mini-stat-info h4 {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .mini-stat-info p {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -557,8 +602,8 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 24px;
+      padding: 20px;
+      margin-bottom: 20px;
       overflow: hidden;
     }
 
@@ -566,59 +611,63 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
     }
 
     .table-header h3 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
     }
 
     .table-filters {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
     .filter-btn {
       background: transparent;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 6px 14px;
+      border-radius: var(--radius-xs);
+      padding: 6px 12px;
       color: var(--text-secondary);
-      font-size: 12px;
-      font-weight: 500;
+      font-size: 11px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all var(--transition);
       font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .filter-btn:hover, .filter-btn.active {
+    .filter-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-light);
+      color: var(--text-primary);
+    }
+
+    .filter-btn.active {
       background: var(--accent-orange);
       border-color: var(--accent-orange);
       color: white;
     }
 
-    .filter-btn.green-active:hover, .filter-btn.green-active.active {
-      background: var(--accent-green);
-      border-color: var(--accent-green);
-    }
-
     .table-scroll {
       overflow-x: auto;
-      max-height: 600px;
+      max-height: 520px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .table-scroll::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
     }
 
     .table-scroll::-webkit-scrollbar-track {
-      background: var(--bg-secondary);
+      background: transparent;
     }
 
     .table-scroll::-webkit-scrollbar-thumb {
@@ -629,7 +678,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 900px;
+      min-width: 860px;
     }
 
     thead {
@@ -640,27 +689,32 @@
 
     th {
       background: var(--bg-primary);
-      padding: 12px 16px;
+      padding: 10px 14px;
       text-align: left;
-      font-size: 11px;
-      font-weight: 600;
+      font-size: 10px;
+      font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 2px solid var(--border);
       white-space: nowrap;
     }
 
     td {
-      padding: 12px 16px;
-      font-size: 13px;
+      padding: 10px 14px;
+      font-size: 12px;
       color: var(--text-secondary);
-      border-bottom: 1px solid rgba(30,41,59,0.5);
+      border-bottom: 1px solid rgba(30,41,59,0.4);
       white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    tr {
+      transition: all 0.15s ease;
     }
 
     tr:hover td {
-      background: rgba(30,41,59,0.3);
+      background: rgba(30,41,59,0.25);
       color: var(--text-primary);
     }
 
@@ -668,19 +722,20 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
     }
 
     .badge-pago {
-      background: rgba(234,88,12,0.15);
+      background: rgba(234,88,12,0.12);
       color: var(--accent-orange-light);
     }
 
     .badge-organico {
-      background: rgba(34,197,94,0.15);
+      background: rgba(34,197,94,0.12);
       color: var(--accent-green-light);
     }
 
@@ -690,73 +745,80 @@
     }
 
     .badge-27 {
-      background: rgba(139,92,246,0.15);
+      background: rgba(139,92,246,0.12);
       color: #A78BFA;
     }
 
     .badge-47 {
-      background: rgba(6,182,212,0.15);
+      background: rgba(6,182,212,0.12);
       color: #22D3EE;
     }
 
     /* ====== TOP ADS TABLE ====== */
     .ad-bar {
-      height: 6px;
+      height: 5px;
       border-radius: 3px;
       background: var(--border);
       overflow: hidden;
-      min-width: 80px;
+      min-width: 70px;
     }
 
     .ad-bar-fill {
       height: 100%;
       border-radius: 3px;
       background: var(--gradient-orange);
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* ====== SOURCE BARS ====== */
     .source-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(30,41,59,0.3);
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(30,41,59,0.25);
+      transition: all var(--transition);
     }
 
     .source-item:last-child { border-bottom: none; }
 
+    .source-item:hover {
+      padding-left: 4px;
+    }
+
     .source-name {
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 12px;
+      font-weight: 600;
       color: var(--text-primary);
-      min-width: 120px;
+      min-width: 110px;
+      white-space: nowrap;
     }
 
     .source-bar-wrapper {
       flex: 1;
-      height: 8px;
+      height: 6px;
       background: var(--border);
-      border-radius: 4px;
+      border-radius: 3px;
       overflow: hidden;
     }
 
     .source-bar-fill {
       height: 100%;
-      border-radius: 4px;
-      transition: width 1s ease;
+      border-radius: 3px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .source-count {
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 800;
       color: var(--text-primary);
-      min-width: 30px;
+      min-width: 28px;
       text-align: right;
     }
 
-    /* ====== UTM CONTENT TOOLTIP ====== */
+    /* ====== UTM CONTENT ====== */
     .utm-cell {
-      max-width: 200px;
+      max-width: 180px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -765,55 +827,240 @@
 
     /* ====== ANIMATIONS ====== */
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .animate-in {
-      animation: fadeInUp 0.5s ease forwards;
+      animation: fadeInUp 0.4s ease forwards;
       opacity: 0;
     }
 
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
-    .delay-5 { animation-delay: 0.5s; }
-    .delay-6 { animation-delay: 0.6s; }
+    .delay-1 { animation-delay: 0.05s; }
+    .delay-2 { animation-delay: 0.1s; }
+    .delay-3 { animation-delay: 0.15s; }
+    .delay-4 { animation-delay: 0.2s; }
+    .delay-5 { animation-delay: 0.25s; }
+    .delay-6 { animation-delay: 0.3s; }
 
-    /* ====== RESPONSIVE ====== */
-    @media (max-width: 1200px) {
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-      .macro-stats { grid-template-columns: 1fr 1fr; }
+    /* ====== MOBILE CARDS (table alternative) ====== */
+    .mobile-cards {
+      display: none;
     }
 
-    @media (max-width: 900px) {
-      .container { padding: 16px; }
-      .macro-grid { grid-template-columns: 1fr; }
-      .product-grid { grid-template-columns: 1fr; }
-      .kpi-grid { grid-template-columns: 1fr; }
-      .charts-row, .charts-row-equal { grid-template-columns: 1fr; }
+    .sale-card-mobile {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      transition: all var(--transition);
+    }
+
+    .sale-card-mobile:active {
+      background: var(--bg-card-hover);
+    }
+
+    .sale-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .sale-card-client {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 60%;
+    }
+
+    .sale-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .sale-card-detail {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .sale-card-detail span {
+      color: var(--text-secondary);
+    }
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width: 1280px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
       .mini-stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .header { flex-direction: column; align-items: flex-start; gap: 12px; }
-      .macro-stats { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 1024px) {
+      .charts-row { grid-template-columns: 1fr; }
+      .charts-row-equal { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 14px 16px; }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 0 20px;
+        margin-bottom: 20px;
+      }
+
+      .header-title h1 { font-size: 16px; }
+      .logo-circle { width: 38px; height: 38px; font-size: 15px; }
+
+      .section-title {
+        font-size: 11px;
+        margin-bottom: 10px;
+      }
+
+      .macro-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .macro-card { padding: 18px; }
+      .macro-pct { font-size: 24px; }
+      .macro-stats { gap: 8px; }
+      .macro-stat-item { padding: 10px 4px; }
+      .macro-stat-item .stat-value { font-size: 15px; }
+      .macro-stat-item .stat-label { font-size: 8px; }
+
+      .product-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .product-card { padding: 14px 10px; }
+      .product-card .product-count { font-size: 24px; }
+      .product-card .product-revenue { font-size: 11px; }
+      .product-card .product-price { font-size: 9px; }
+
+      .kpi-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .kpi-card { padding: 14px; }
+      .kpi-value { font-size: 20px; }
+      .kpi-label { font-size: 9px; }
+      .kpi-sub { font-size: 10px; }
+
+      .mini-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .mini-stat { padding: 12px; gap: 10px; }
+      .mini-stat-icon { width: 36px; height: 36px; font-size: 16px; }
+      .mini-stat-info h4 { font-size: 14px; }
+
+      .chart-card { padding: 16px; }
+      .chart-card h3 { font-size: 14px; }
+
+      .table-card { padding: 14px; }
+      .table-header h3 { font-size: 14px; }
+
+      .filter-btn { padding: 5px 10px; font-size: 10px; }
+
+      .source-name { min-width: 80px; font-size: 11px; }
+      .source-count { font-size: 12px; }
+    }
+
+    @media (max-width: 600px) {
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .macro-stats {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      /* Show mobile cards, hide desktop table */
+      .desktop-table { display: none; }
+      .mobile-cards { display: block; }
+    }
+
+    @media (max-width: 400px) {
+      .container { padding: 10px 12px; }
+      .macro-card { padding: 14px; }
+      .macro-pct { font-size: 20px; }
+      .macro-stat-item .stat-value { font-size: 13px; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .mini-stats-grid { grid-template-columns: 1fr; }
     }
 
     /* ====== FOOTER ====== */
     .footer {
       text-align: center;
-      padding: 32px 0;
+      padding: 28px 0;
       border-top: 1px solid var(--border);
-      margin-top: 24px;
+      margin-top: 20px;
     }
 
     .footer p {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
     }
 
     .footer span {
       color: var(--accent-orange);
       font-weight: 600;
+    }
+
+    /* ====== SEARCH ====== */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      padding: 6px 12px;
+      transition: border-color var(--transition);
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent-orange);
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      width: 160px;
+    }
+
+    .search-box input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-icon {
+      color: var(--text-muted);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+      .search-box input { width: 120px; }
     }
   </style>
 </head>
@@ -830,43 +1077,43 @@
       </div>
       <div class="header-badge">
         <span class="dot"></span>
-        Dados atualizados em 10/03/2026
+        Atualizado em 10/03/2026
       </div>
     </header>
 
-    <!-- ===== SEÇÃO 1: VISÃO 80/20 — PAGO vs ORGÂNICO ===== -->
+    <!-- VISÃO 80/20 -->
     <div class="section-title animate-in delay-1">
-      VISÃO 80/20 — Pago vs Orgânico
+      Visão 80/20 — Pago vs Orgânico
       <span class="section-line"></span>
     </div>
     <div class="macro-grid animate-in delay-1" id="macro-grid"></div>
 
-    <!-- ===== SEÇÃO 2: SPLIT POR PRODUTO ===== -->
+    <!-- SPLIT POR PRODUTO -->
     <div class="section-title animate-in delay-2">
       Vendas por Produto
       <span class="section-line"></span>
     </div>
     <div class="product-grid animate-in delay-2" id="product-grid"></div>
 
-    <!-- ===== SEÇÃO 3: KPIs GERAIS ===== -->
+    <!-- KPIs GERAIS -->
     <div class="section-title animate-in delay-2">
       KPIs Gerais
       <span class="section-line"></span>
     </div>
     <div class="kpi-grid animate-in delay-2" id="kpi-grid"></div>
 
-    <!-- ===== SEÇÃO 4: GRÁFICOS ===== -->
+    <!-- GRÁFICOS -->
     <div class="charts-row">
       <div class="chart-card animate-in delay-3">
         <h3>Vendas por Dia</h3>
-        <p class="subtitle">Evolução diária — barras empilhadas Pago vs Orgânico</p>
+        <p class="subtitle">Barras empilhadas — Pago vs Orgânico</p>
         <div class="chart-wrapper">
           <canvas id="chart-daily" height="280"></canvas>
         </div>
       </div>
       <div class="chart-card animate-in delay-3">
         <h3>Origem das Vendas</h3>
-        <p class="subtitle">Pago vs Orgânico / Equipe Comercial</p>
+        <p class="subtitle">Distribuição Pago vs Orgânico</p>
         <div class="donut-container">
           <canvas id="chart-donut" height="220"></canvas>
           <div class="donut-center-text">
@@ -878,23 +1125,22 @@
       </div>
     </div>
 
-    <!-- ===== SEÇÃO 5: FACEBOOK ADS ===== -->
+    <!-- FACEBOOK ADS -->
     <div class="section-title animate-in delay-4">
       Métricas Facebook Ads
       <span class="section-line"></span>
     </div>
     <div class="mini-stats-grid animate-in delay-4" id="fb-stats"></div>
 
-    <!-- CHARTS ROW 2 -->
     <div class="charts-row-equal">
       <div class="chart-card animate-in delay-4">
         <h3>Vendas por Fonte (UTM)</h3>
-        <p class="subtitle">Quem trouxe mais vendas para o lançamento</p>
+        <p class="subtitle">Ranking de origens do lançamento</p>
         <div id="source-bars"></div>
       </div>
       <div class="chart-card animate-in delay-4">
         <h3>Forma de Pagamento</h3>
-        <p class="subtitle">Distribuição entre Pix e Cartão de Crédito</p>
+        <p class="subtitle">Pix vs Cartão de Crédito</p>
         <div class="chart-wrapper">
           <canvas id="chart-payment" height="240"></canvas>
         </div>
@@ -912,7 +1158,7 @@
             <tr>
               <th>Criativo</th>
               <th>Investimento</th>
-              <th>Resultados (FB)</th>
+              <th>Resultados</th>
               <th>CPR</th>
               <th>ROAS</th>
               <th>Impressões</th>
@@ -925,19 +1171,27 @@
       </div>
     </div>
 
-    <!-- ===== SEÇÃO 6: VENDAS DETALHADAS ===== -->
+    <!-- VENDAS DETALHADAS -->
     <div class="table-card animate-in delay-5">
       <div class="table-header">
-        <h3>Vendas Detalhadas (Checkout)</h3>
-        <div class="table-filters">
-          <button class="filter-btn active" onclick="filterTable('all', this)">Todos</button>
-          <button class="filter-btn" onclick="filterTable('pago', this)">Pago</button>
-          <button class="filter-btn" onclick="filterTable('organico', this)">Orgânico / Equipe</button>
-          <button class="filter-btn" onclick="filterTable('47', this)">R$47</button>
-          <button class="filter-btn" onclick="filterTable('27', this)">R$27</button>
+        <h3>Vendas Detalhadas</h3>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div class="search-box">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" id="search-input" placeholder="Buscar cliente..." oninput="handleSearch()">
+          </div>
+          <div class="table-filters">
+            <button class="filter-btn active" onclick="filterTable('all', this)">Todos</button>
+            <button class="filter-btn" onclick="filterTable('pago', this)">Pago</button>
+            <button class="filter-btn" onclick="filterTable('organico', this)">Orgânico</button>
+            <button class="filter-btn" onclick="filterTable('47', this)">R$47</button>
+            <button class="filter-btn" onclick="filterTable('27', this)">R$27</button>
+          </div>
         </div>
       </div>
-      <div class="table-scroll">
+
+      <!-- Desktop Table -->
+      <div class="table-scroll desktop-table">
         <table id="table-sales">
           <thead>
             <tr>
@@ -948,17 +1202,20 @@
               <th>Pagamento</th>
               <th>Canal</th>
               <th>UTM Source</th>
-              <th>Criativo (UTM Content)</th>
+              <th>Criativo</th>
               <th>UF</th>
             </tr>
           </thead>
           <tbody id="sales-body"></tbody>
         </table>
       </div>
+
+      <!-- Mobile Cards -->
+      <div class="mobile-cards" id="mobile-cards"></div>
     </div>
 
     <footer class="footer">
-      <p>Dashboard gerado automaticamente · Fonte primária: Plataforma de Checkout · <span>Closer 360</span></p>
+      <p>Dashboard gerado automaticamente · Fonte: Plataforma de Checkout · <span>Closer 360</span></p>
     </footer>
   </div>
 
@@ -998,11 +1255,11 @@
             <div class="stat-label">Vendas</div>
           </div>
           <div class="macro-stat-item">
-            <div class="stat-value">R$ ${paidRev.toLocaleString('pt-BR',{minimumFractionDigits:0})}</div>
+            <div class="stat-value">R$${paidRev.toLocaleString('pt-BR')}</div>
             <div class="stat-label">Receita</div>
           </div>
           <div class="macro-stat-item">
-            <div class="stat-value">R$ ${paidAvgTicket.toFixed(0)}</div>
+            <div class="stat-value">R$${paidAvgTicket.toFixed(0)}</div>
             <div class="stat-label">Ticket Médio</div>
           </div>
         </div>
@@ -1018,11 +1275,11 @@
             <div class="stat-label">Vendas</div>
           </div>
           <div class="macro-stat-item">
-            <div class="stat-value">R$ ${orgRev.toLocaleString('pt-BR',{minimumFractionDigits:0})}</div>
+            <div class="stat-value">R$${orgRev.toLocaleString('pt-BR')}</div>
             <div class="stat-label">Receita</div>
           </div>
           <div class="macro-stat-item">
-            <div class="stat-value">R$ ${orgAvgTicket.toFixed(0)}</div>
+            <div class="stat-value">R$${orgAvgTicket.toFixed(0)}</div>
             <div class="stat-label">Ticket Médio</div>
           </div>
         </div>
@@ -1051,7 +1308,7 @@
         <div class="product-price">Total Geral</div>
         <div class="product-count">${totalSales}</div>
         <div class="product-revenue">R$ ${totalRevenue.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
-        <div class="product-sub">Ticket médio R$ ${avgTicket.toFixed(2)}</div>
+        <div class="product-sub">Ticket médio R$${avgTicket.toFixed(2)}</div>
       </div>
     `;
 
@@ -1059,9 +1316,9 @@
     const kpiGrid = document.getElementById('kpi-grid');
     const kpis = [
       { label: 'Investimento Ads', value: totalFBSpent, format: 'brl', sub: 'Total gasto Facebook Ads' },
-      { label: 'CAC (vendas pago)', value: cac, format: 'brl', sub: `Custo por aquisição via ads` },
-      { label: 'ROAS Real', value: roasReal, format: 'x', sub: `Receita total / Investimento` },
-      { label: 'Lucro Pago', value: paidRev - totalFBSpent, format: 'brl', sub: `Receita pago - Investimento` },
+      { label: 'CAC (vendas pago)', value: cac, format: 'brl', sub: 'Custo por aquisição via ads' },
+      { label: 'ROAS Real', value: roasReal, format: 'x', sub: 'Receita total / Investimento' },
+      { label: 'Lucro Pago', value: paidRev - totalFBSpent, format: 'brl', sub: 'Receita pago - Investimento' },
     ];
 
     kpis.forEach((kpi, i) => {
@@ -1079,7 +1336,7 @@
       kpiGrid.appendChild(card);
     });
 
-    // ====== DAILY SALES CHART (Stacked: Pago vs Orgânico) ======
+    // ====== DAILY SALES CHART ======
     const dailyMapPago = {};
     const dailyMapOrg = {};
     checkoutSales.forEach(s => {
@@ -1096,6 +1353,18 @@
       return parts[2] + '/' + parts[1];
     });
 
+    const chartTooltipStyle = {
+      backgroundColor: '#1E293B',
+      titleColor: '#F8FAFC',
+      bodyColor: '#94A3B8',
+      borderColor: '#334155',
+      borderWidth: 1,
+      cornerRadius: 8,
+      padding: 10,
+      titleFont: { size: 12, weight: '600', family: 'Inter' },
+      bodyFont: { size: 11, family: 'Inter' },
+    };
+
     new Chart(document.getElementById('chart-daily'), {
       type: 'bar',
       data: {
@@ -1104,19 +1373,19 @@
           {
             label: 'Pago',
             data: allDates.map(d => dailyMapPago[d] || 0),
-            backgroundColor: 'rgba(234,88,12,0.8)',
+            backgroundColor: 'rgba(234,88,12,0.75)',
             borderColor: '#EA580C',
             borderWidth: 1,
-            borderRadius: 4,
+            borderRadius: 3,
             borderSkipped: false,
           },
           {
             label: 'Orgânico / Equipe',
             data: allDates.map(d => dailyMapOrg[d] || 0),
-            backgroundColor: 'rgba(34,197,94,0.8)',
+            backgroundColor: 'rgba(34,197,94,0.75)',
             borderColor: '#22C55E',
             borderWidth: 1,
-            borderRadius: 4,
+            borderRadius: 3,
             borderSkipped: false,
           }
         ]
@@ -1124,38 +1393,31 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
         plugins: {
           legend: {
             position: 'top',
             labels: {
               color: '#94A3B8',
-              font: { size: 11, family: 'Inter' },
+              font: { size: 11, family: 'Inter', weight: '500' },
               usePointStyle: true,
-              pointStyleWidth: 10,
-              padding: 16,
+              pointStyleWidth: 8,
+              padding: 14,
             }
           },
-          tooltip: {
-            backgroundColor: '#1E293B',
-            titleColor: '#F8FAFC',
-            bodyColor: '#94A3B8',
-            borderColor: '#334155',
-            borderWidth: 1,
-            cornerRadius: 8,
-            padding: 12,
-          }
+          tooltip: chartTooltipStyle
         },
         scales: {
           x: {
             stacked: true,
             grid: { display: false },
-            ticks: { color: '#64748B', font: { size: 10 } },
+            ticks: { color: '#64748B', font: { size: 9, family: 'Inter' } },
             border: { display: false }
           },
           y: {
             stacked: true,
-            grid: { color: 'rgba(30,41,59,0.5)' },
-            ticks: { color: '#64748B', font: { size: 10 }, stepSize: 1 },
+            grid: { color: 'rgba(30,41,59,0.4)', drawTicks: false },
+            ticks: { color: '#64748B', font: { size: 9, family: 'Inter' }, stepSize: 1, padding: 8 },
             border: { display: false },
             beginAtZero: true
           }
@@ -1169,35 +1431,26 @@
     new Chart(document.getElementById('chart-donut'), {
       type: 'doughnut',
       data: {
-        labels: ['Pago', 'Orgânico / Equipe Comercial'],
+        labels: ['Pago', 'Orgânico / Equipe'],
         datasets: [{
           data: [paidSales.length, organicSales.length],
           backgroundColor: ['#EA580C', '#22C55E'],
           borderColor: '#0F172A',
-          borderWidth: 4,
-          hoverOffset: 8,
+          borderWidth: 3,
+          hoverOffset: 6,
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '68%',
+        cutout: '70%',
         plugins: {
           legend: { display: false },
-          tooltip: {
-            backgroundColor: '#1E293B',
-            titleColor: '#F8FAFC',
-            bodyColor: '#94A3B8',
-            borderColor: '#334155',
-            borderWidth: 1,
-            cornerRadius: 8,
-            padding: 12,
-          }
+          tooltip: chartTooltipStyle
         }
       }
     });
 
-    // Donut legend
     const donutLegend = document.getElementById('donut-legend');
     donutLegend.innerHTML = `
       <div class="legend-item">
@@ -1207,7 +1460,7 @@
         </div>
         <div>
           <span class="legend-value">${paidSales.length}</span>
-          <span class="legend-pct">(${paidPct}%) · R$ ${paidRev.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+          <span class="legend-pct">(${paidPct}%) · R$${paidRev.toLocaleString('pt-BR')}</span>
         </div>
       </div>
       <div class="legend-item">
@@ -1217,7 +1470,7 @@
         </div>
         <div>
           <span class="legend-value">${organicSales.length}</span>
-          <span class="legend-pct">(${orgPct}%) · R$ ${orgRev.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+          <span class="legend-pct">(${orgPct}%) · R$${orgRev.toLocaleString('pt-BR')}</span>
         </div>
       </div>
     `;
@@ -1225,17 +1478,14 @@
     // ====== FACEBOOK ADS MINI STATS ======
     const totalFBResults = facebookAds.reduce((s, a) => s + a.results, 0);
     const avgCPM = totalFBSpent / (totalImpressions / 1000);
-    const avgCPR = totalFBResults > 0 ? totalFBSpent / totalFBResults : 0;
 
     const fbStatsEl = document.getElementById('fb-stats');
-    const fbMetrics = [
+    [
       { icon: '💸', color: 'orange', label: 'Investimento Total', value: 'R$ ' + totalFBSpent.toLocaleString('pt-BR', {minimumFractionDigits:2}) },
       { icon: '👁️', color: 'blue', label: 'Impressões', value: totalImpressions.toLocaleString('pt-BR') },
       { icon: '📢', color: 'green', label: 'Alcance Total', value: totalReach.toLocaleString('pt-BR') },
       { icon: '🎯', color: 'purple', label: 'CPM Médio', value: 'R$ ' + avgCPM.toFixed(2) },
-    ];
-
-    fbMetrics.forEach(m => {
+    ].forEach(m => {
       const div = document.createElement('div');
       div.className = 'mini-stat';
       div.innerHTML = `
@@ -1256,7 +1506,7 @@
       if (src.startsWith('fb') || src.startsWith('instagram_') || src.startsWith('facebook_')) srcLabel = 'Facebook Ads';
       else if (src === 'kelvin') srcLabel = 'Kelvin';
       else if (src === 'lucas') srcLabel = 'Lucas';
-      else if (src === 'gabriel' || src === 'gabriel') srcLabel = 'Gabriel';
+      else if (src === 'gabriel') srcLabel = 'Gabriel';
       else if (src === 'zuca') srcLabel = 'Zuca';
       else if (src === 'jez' || src === 'jazz') srcLabel = 'Jez';
       else if (src.startsWith('link_bio')) srcLabel = 'Link Bio';
@@ -1271,16 +1521,10 @@
     const sortedSources = Object.entries(sourceMap).sort((a, b) => b[1] - a[1]);
     const maxSourceCount = sortedSources[0][1];
     const sourceColors = {
-      'Facebook Ads': '#EA580C',
-      'Kelvin': '#8B5CF6',
-      'Zuca': '#06B6D4',
-      'Lucas': '#3B82F6',
-      'Gabriel': '#F59E0B',
-      'Jez': '#EC4899',
-      'Link Bio': '#6366F1',
-      'Orgânico': '#22C55E',
-      'Direto / Sem UTM': '#64748B',
-      'Eduzz (Recuperação)': '#EF4444',
+      'Facebook Ads': '#EA580C', 'Kelvin': '#8B5CF6', 'Zuca': '#06B6D4',
+      'Lucas': '#3B82F6', 'Gabriel': '#F59E0B', 'Jez': '#EC4899',
+      'Link Bio': '#6366F1', 'Orgânico': '#22C55E',
+      'Direto / Sem UTM': '#64748B', 'Eduzz (Recuperação)': '#EF4444',
     };
 
     const sourceBarsEl = document.getElementById('source-bars');
@@ -1311,33 +1555,27 @@
           data: [pixCount, ccCount],
           backgroundColor: ['#22C55E', '#3B82F6'],
           borderColor: '#0F172A',
-          borderWidth: 4,
-          hoverOffset: 8,
+          borderWidth: 3,
+          hoverOffset: 6,
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '60%',
+        cutout: '62%',
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
               color: '#94A3B8',
-              font: { size: 12, family: 'Inter' },
-              padding: 16,
+              font: { size: 11, family: 'Inter', weight: '500' },
+              padding: 14,
               usePointStyle: true,
-              pointStyleWidth: 12,
+              pointStyleWidth: 10,
             }
           },
           tooltip: {
-            backgroundColor: '#1E293B',
-            titleColor: '#F8FAFC',
-            bodyColor: '#94A3B8',
-            borderColor: '#334155',
-            borderWidth: 1,
-            cornerRadius: 8,
-            padding: 12,
+            ...chartTooltipStyle,
             callbacks: {
               label: function(ctx) {
                 const pct = ((ctx.parsed / totalSales) * 100).toFixed(1);
@@ -1359,11 +1597,11 @@
       const roasColor = ad.roas >= 1 ? 'var(--accent-green)' : ad.roas >= 0.5 ? 'var(--accent-orange-light)' : 'var(--accent-red)';
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td style="color:var(--text-primary);font-weight:500">${ad.ad}</td>
+        <td style="color:var(--text-primary);font-weight:600">${ad.ad}</td>
         <td>R$ ${ad.spent.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
         <td style="font-weight:700;color:var(--accent-orange-light)">${ad.results}</td>
         <td>R$ ${ad.cpr.toFixed(2)}</td>
-        <td style="color:${roasColor};font-weight:600">${ad.roas.toFixed(2)}x</td>
+        <td style="color:${roasColor};font-weight:700">${ad.roas.toFixed(2)}x</td>
         <td>${ad.impressions.toLocaleString('pt-BR')}</td>
         <td>${ad.reach.toLocaleString('pt-BR')}</td>
         <td><div class="ad-bar"><div class="ad-bar-fill" style="width:${pct}%"></div></div></td>
@@ -1372,39 +1610,51 @@
     });
 
     // ====== SALES TABLE ======
+    let currentFilter = 'all';
+    let searchQuery = '';
+
     function extractCreativo(sale) {
       const content = (sale.utm_content || '').trim();
       if (!content) return '—';
-      // Remove the ID portion after the pipe
-      const clean = content.split('|')[0].trim();
-      return clean || '—';
+      return content.split('|')[0].trim() || '—';
     }
 
-    function renderSalesTable(filter) {
+    function getFilteredSales() {
+      let filtered = checkoutSales;
+      if (currentFilter === 'pago') filtered = paidSales;
+      else if (currentFilter === 'organico') filtered = organicSales;
+      else if (currentFilter === '47') filtered = sales47;
+      else if (currentFilter === '27') filtered = sales27;
+
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(s => s.client.toLowerCase().includes(q));
+      }
+
+      return [...filtered].reverse();
+    }
+
+    function renderSalesTable() {
+      const sorted = getFilteredSales();
+
+      // Desktop table
       const salesBody = document.getElementById('sales-body');
       salesBody.innerHTML = '';
-      let filtered = checkoutSales;
-      if (filter === 'pago') filtered = paidSales;
-      else if (filter === 'organico') filtered = organicSales;
-      else if (filter === '47') filtered = sales47;
-      else if (filter === '27') filtered = sales27;
-
-      const sorted = [...filtered].reverse();
 
       sorted.forEach((sale, i) => {
         const channelClass = sale.channel === 'Pago' ? 'badge-pago' : 'badge-organico';
-        const channelLabel = sale.channel === 'Pago' ? 'Pago' : 'Orgânico / Equipe';
+        const channelLabel = sale.channel === 'Pago' ? 'Pago' : 'Orgânico';
         const utmDisplay = sale.utm_source ?
-          (sale.utm_source.length > 20 ? sale.utm_source.substring(0, 20) + '...' : sale.utm_source) : '—';
+          (sale.utm_source.length > 18 ? sale.utm_source.substring(0, 18) + '...' : sale.utm_source) : '—';
         const criativo = extractCreativo(sale);
-        const criativoDisplay = criativo.length > 28 ? criativo.substring(0, 28) + '...' : criativo;
+        const criativoDisplay = criativo.length > 24 ? criativo.substring(0, 24) + '...' : criativo;
         const valueBadgeClass = sale.value === 47 ? 'badge-47' : 'badge-27';
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td style="color:var(--text-muted)">${i + 1}</td>
+          <td style="color:var(--text-muted);font-weight:500">${i + 1}</td>
           <td>${sale.date}</td>
-          <td style="color:var(--text-primary);font-weight:500">${sale.client}</td>
-          <td><span class="badge ${valueBadgeClass}">R$ ${sale.value},00</span></td>
+          <td style="color:var(--text-primary);font-weight:600">${sale.client}</td>
+          <td><span class="badge ${valueBadgeClass}">R$${sale.value}</span></td>
           <td><span class="badge badge-method">${sale.method}</span></td>
           <td><span class="badge ${channelClass}">${channelLabel}</span></td>
           <td title="${sale.utm_source || ''}">${utmDisplay}</td>
@@ -1413,21 +1663,54 @@
         `;
         salesBody.appendChild(tr);
       });
+
+      // Mobile cards
+      const mobileCards = document.getElementById('mobile-cards');
+      mobileCards.innerHTML = '';
+
+      sorted.forEach(sale => {
+        const channelClass = sale.channel === 'Pago' ? 'badge-pago' : 'badge-organico';
+        const channelLabel = sale.channel === 'Pago' ? 'Pago' : 'Orgânico';
+        const valueBadgeClass = sale.value === 47 ? 'badge-47' : 'badge-27';
+        const criativo = extractCreativo(sale);
+        const div = document.createElement('div');
+        div.className = 'sale-card-mobile';
+        div.innerHTML = `
+          <div class="sale-card-top">
+            <div class="sale-card-client">${sale.client}</div>
+            <span class="badge ${valueBadgeClass}">R$${sale.value}</span>
+          </div>
+          <div class="sale-card-meta">
+            <span class="badge ${channelClass}">${channelLabel}</span>
+            <span class="badge badge-method">${sale.method}</span>
+            ${sale.state ? `<span class="badge" style="background:rgba(100,116,139,0.1);color:#94A3B8">${sale.state}</span>` : ''}
+          </div>
+          <div class="sale-card-detail">
+            ${sale.date}${criativo !== '—' ? ` · <span>${criativo}</span>` : ''}
+          </div>
+        `;
+        mobileCards.appendChild(div);
+      });
     }
 
-    renderSalesTable('all');
+    renderSalesTable();
 
     function filterTable(filter, btn) {
+      currentFilter = filter;
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderSalesTable(filter);
+      renderSalesTable();
+    }
+
+    function handleSearch() {
+      searchQuery = document.getElementById('search-input').value;
+      renderSalesTable();
     }
 
     // ====== COUNTER ANIMATION ======
     document.querySelectorAll('.kpi-value').forEach(el => {
       const text = el.textContent.trim();
-      const isNumber = /^[\dR$.,x\s\-]+$/.test(text);
-      if (!isNumber) return;
+      if (!/^[\dR$.,x\s\-]+$/.test(text)) return;
 
       let cleanText;
       if (text.includes('x')) {
@@ -1438,32 +1721,39 @@
       const target = parseFloat(cleanText);
       if (isNaN(target)) return;
 
-      let current = 0;
-      const duration = 1200;
+      const duration = 1000;
       const startTime = performance.now();
       const prefix = text.includes('R$') ? 'R$ ' : '';
       const suffix = text.includes('x') ? 'x' : '';
       const isBRL = text.includes('R$');
-      const isNeg = target < 0;
 
       function animate(now) {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
-        current = target * eased;
+        const current = target * eased;
 
-        if (suffix) {
-          el.textContent = current.toFixed(2) + suffix;
-        } else if (isBRL) {
-          el.textContent = prefix + current.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        } else {
-          el.textContent = Math.round(current).toLocaleString('pt-BR');
-        }
+        if (suffix) el.textContent = current.toFixed(2) + suffix;
+        else if (isBRL) el.textContent = prefix + current.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        else el.textContent = Math.round(current).toLocaleString('pt-BR');
 
         if (progress < 1) requestAnimationFrame(animate);
       }
 
       requestAnimationFrame(animate);
+    });
+
+    // ====== INTERSECTION OBSERVER (lazy animations) ======
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-in').forEach(el => {
+      observer.observe(el);
     });
   </script>
 </body>
