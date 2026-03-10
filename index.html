@@ -1358,6 +1358,11 @@
     const orgPct = ((organicSales.length / totalSales) * 100).toFixed(1);
     const paidAvgTicket = paidSales.length > 0 ? paidRev / paidSales.length : 0;
     const orgAvgTicket = organicSales.length > 0 ? orgRev / organicSales.length : 0;
+    // Receita Líquida (descontando taxas Eduzz: R$2,49 p/ R$27 | R$4,79 p/ R$47)
+    const totalTaxaEduzz = checkoutSales.reduce((s, v) => s + (v.value === 47 ? 4.79 : 2.49), 0);
+    const receitaLiquida = totalRevenue - totalTaxaEduzz;
+    const lucroPago = paidRev - totalFBSpent - paidSales.reduce((s, v) => s + (v.value === 47 ? 4.79 : 2.49), 0);
+    const margemLiquida = totalRevenue > 0 ? (receitaLiquida / totalRevenue * 100) : 0;
 
     // ====== 80/20 MACRO CARDS ======
     document.getElementById('macro-grid').innerHTML = `
@@ -1430,10 +1435,11 @@
     // ====== KPI CARDS ======
     const kpiGrid = document.getElementById('kpi-grid');
     [
+      { label: 'Receita Líquida', value: receitaLiquida, format: 'brl', sub: `Bruta R$${totalRevenue.toLocaleString('pt-BR')} − Taxas R$${totalTaxaEduzz.toFixed(2)} · Margem ${margemLiquida.toFixed(1)}%` },
       { label: 'Investimento Ads', value: totalFBSpent, format: 'brl', sub: 'Total gasto Facebook Ads' },
       { label: 'CPA (Pago)', value: cpaPago, format: 'brl', sub: `${paidSales.length} vendas pagas (incl. sem UTM)` },
       { label: 'ROAS Pago', value: roasPago, format: 'x', sub: 'Receita pago / Investimento' },
-      { label: 'Lucro Pago', value: paidRev - totalFBSpent, format: 'brl', sub: 'Receita pago - Investimento' },
+      { label: 'Lucro Pago (líq.)', value: lucroPago, format: 'brl', sub: 'Receita pago − Ads − Taxas Eduzz' },
     ].forEach((kpi, i) => {
       const card = document.createElement('div');
       card.className = 'kpi-card';
