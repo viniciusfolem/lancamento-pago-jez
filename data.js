@@ -153,6 +153,42 @@ const facebookAds = [
   {ad:"06 - Estático 02",adset:"00 - aberto 25-54",spent:16.10,results:0,cpr:0,impressions:505,reach:408,roas:0},
 ];
 
+// ====== GENDER CLASSIFICATION (by first name) ======
+const femaleNames = new Set([
+  'sonia','letícia','leticia','jéssica','jessica','karen','angélica','angelica',
+  'herotilde','vanessa','patrícia','patricia','ana','claudiane','poline',
+  'dagmar','renata','melissa','camila','carolina','ellen','kesia',
+  'valdilene','mayara','raquel','rosaline','stherluany','sthefanny',
+  'francilma','bruna','edinelsa','roberta','rosane','adna','tainara',
+  'carina','lícia','licia','iavla','cibele','clara','eurenice','elizabeth',
+  'kettylin','lilian','michelle','anne','yara','jainny','tairly','alessandra',
+  'natalice','larissa','yzabele','isabel'
+]);
+const maleNames = new Set([
+  'diego','gleison','helder','sandro','gleuton','roberto','renan','pedro',
+  'waynne','jorge','marcos','ruan','victor','estanislau','francisco','vinícius',
+  'vinicius','jackson','gabriel','fabian','rodrigo','lucas','adenilson',
+  'fernando','remiton','felipe','joão','joao','wilson','neucler','tiago',
+  'luís','luis','renato','danton','paulo','ivan','matheus','david','nathan',
+  'charles','carlos','joacir','herick','mardoqueu','arthur','cilas','mateus',
+  'christiano','josé','jose','gleison'
+]);
+
+function classifyGender(clientName) {
+  const firstName = clientName.trim().split(/\s+/)[0].toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const firstNameOriginal = clientName.trim().split(/\s+/)[0].toLowerCase();
+
+  if (femaleNames.has(firstNameOriginal) || femaleNames.has(firstName)) return 'F';
+  if (maleNames.has(firstNameOriginal) || maleNames.has(firstName)) return 'M';
+
+  // Heurística: nomes terminados em 'a' tendem a ser femininos em português
+  if (firstName.endsWith('a')) return 'F';
+  if (firstName.endsWith('o') || firstName.endsWith('os') || firstName.endsWith('on')) return 'M';
+
+  return 'N/D';
+}
+
 // ====== CLASSIFICATION LOGIC ======
 function classifySource(sale) {
   const src = (sale.utm_source || '').toLowerCase().trim();
@@ -183,6 +219,7 @@ function classifySource(sale) {
 // Process all sales
 checkoutSales.forEach(sale => {
   sale.channel = classifySource(sale);
+  sale.gender = classifyGender(sale.client);
   // Parse date
   const parts = sale.date.split('/');
   sale.dateObj = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));

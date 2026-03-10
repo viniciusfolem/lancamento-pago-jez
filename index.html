@@ -767,6 +767,63 @@
     .badge-27 { background: rgba(139,92,246,0.12); color: #A78BFA; }
     .badge-47 { background: rgba(6,182,212,0.12); color: #22D3EE; }
     .badge-neutral { background: rgba(100,116,139,0.1); color: #94A3B8; }
+    .badge-f { background: rgba(236,72,153,0.12); color: #F472B6; }
+    .badge-m { background: rgba(59,130,246,0.12); color: #60A5FA; }
+
+    .gender-stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: rgba(2,6,23,0.5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+    }
+
+    .gender-stat-row:last-child { margin-bottom: 0; }
+
+    .gender-stat-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gender-stat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .gender-stat-info h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .gender-stat-info p {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .gender-stat-right {
+      text-align: right;
+    }
+
+    .gender-stat-right .revenue {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+
+    .gender-stat-right .ticket {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
 
     /* ====== AD BAR ====== */
     .ad-bar {
@@ -1106,6 +1163,7 @@
     <nav class="section-nav" id="section-nav">
       <button class="active" data-target="macro-grid">80/20</button>
       <button data-target="product-grid">Produtos</button>
+      <button data-target="chart-gender">Gênero</button>
       <button data-target="kpi-grid">KPIs</button>
       <button data-target="chart-daily">Gráficos</button>
       <button data-target="fb-stats">Ads</button>
@@ -1126,6 +1184,27 @@
       <span class="section-line"></span>
     </div>
     <div class="product-grid animate-in delay-2" id="product-grid"></div>
+
+    <!-- GÊNERO -->
+    <div class="section-title animate-in delay-2">
+      Vendas por Gênero
+      <span class="section-line"></span>
+    </div>
+    <div class="charts-row-equal animate-in delay-2">
+      <div class="chart-card">
+        <h3>Distribuição por Gênero</h3>
+        <p class="subtitle">Classificação por primeiro nome</p>
+        <div class="donut-container">
+          <canvas id="chart-gender"></canvas>
+        </div>
+        <div class="chart-legend" id="gender-legend"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Receita por Gênero</h3>
+        <p class="subtitle">Quanto cada gênero gerou de faturamento</p>
+        <div id="gender-stats"></div>
+      </div>
+    </div>
 
     <!-- KPIs GERAIS -->
     <div class="section-title animate-in delay-2">
@@ -1233,6 +1312,7 @@
               <th>Valor</th>
               <th>Pagamento</th>
               <th>Canal</th>
+              <th>Gênero</th>
               <th>UTM Source</th>
               <th>Criativo</th>
               <th>UF</th>
@@ -1368,6 +1448,120 @@
       `;
       kpiGrid.appendChild(card);
     });
+
+    // ====== GENDER METRICS ======
+    const salesF = checkoutSales.filter(s => s.gender === 'F');
+    const salesM = checkoutSales.filter(s => s.gender === 'M');
+    const salesND = checkoutSales.filter(s => s.gender === 'N/D');
+    const revF = salesF.reduce((s, v) => s + v.value, 0);
+    const revM = salesM.reduce((s, v) => s + v.value, 0);
+    const revND = salesND.reduce((s, v) => s + v.value, 0);
+    const pctF = ((salesF.length / totalSales) * 100).toFixed(1);
+    const pctM = ((salesM.length / totalSales) * 100).toFixed(1);
+
+    new Chart(document.getElementById('chart-gender'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Feminino', 'Masculino', 'N/D'],
+        datasets: [{
+          data: [salesF.length, salesM.length, salesND.length],
+          backgroundColor: ['#EC4899', '#3B82F6', '#64748B'],
+          borderColor: '#0F172A',
+          borderWidth: 3,
+          hoverOffset: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1E293B',
+            titleColor: '#F8FAFC',
+            bodyColor: '#94A3B8',
+            borderColor: '#334155',
+            borderWidth: 1,
+            cornerRadius: 8,
+            padding: 10,
+            callbacks: {
+              label: function(ctx) {
+                const pct = ((ctx.parsed / totalSales) * 100).toFixed(1);
+                return `${ctx.label}: ${ctx.parsed} vendas (${pct}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    document.getElementById('gender-legend').innerHTML = `
+      <div class="legend-item">
+        <div class="legend-item-left">
+          <div class="legend-dot" style="background:#EC4899"></div>
+          <span class="legend-label">Feminino</span>
+        </div>
+        <div>
+          <span class="legend-value">${salesF.length}</span>
+          <span class="legend-pct">(${pctF}%)</span>
+        </div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-item-left">
+          <div class="legend-dot" style="background:#3B82F6"></div>
+          <span class="legend-label">Masculino</span>
+        </div>
+        <div>
+          <span class="legend-value">${salesM.length}</span>
+          <span class="legend-pct">(${pctM}%)</span>
+        </div>
+      </div>
+    `;
+
+    const genderStatsEl = document.getElementById('gender-stats');
+    const ticketF = salesF.length > 0 ? revF / salesF.length : 0;
+    const ticketM = salesM.length > 0 ? revM / salesM.length : 0;
+    genderStatsEl.innerHTML = `
+      <div class="gender-stat-row">
+        <div class="gender-stat-left">
+          <div class="gender-stat-icon" style="background:rgba(236,72,153,0.12)">&#9792;</div>
+          <div class="gender-stat-info">
+            <h4>${salesF.length} vendas (${pctF}%)</h4>
+            <p>Feminino</p>
+          </div>
+        </div>
+        <div class="gender-stat-right">
+          <div class="revenue">R$ ${revF.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+          <div class="ticket">Ticket R$${ticketF.toFixed(2)}</div>
+        </div>
+      </div>
+      <div class="gender-stat-row">
+        <div class="gender-stat-left">
+          <div class="gender-stat-icon" style="background:rgba(59,130,246,0.12)">&#9794;</div>
+          <div class="gender-stat-info">
+            <h4>${salesM.length} vendas (${pctM}%)</h4>
+            <p>Masculino</p>
+          </div>
+        </div>
+        <div class="gender-stat-right">
+          <div class="revenue">R$ ${revM.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+          <div class="ticket">Ticket R$${ticketM.toFixed(2)}</div>
+        </div>
+      </div>
+      <div class="gender-stat-row" style="opacity:0.6">
+        <div class="gender-stat-left">
+          <div class="gender-stat-icon" style="background:rgba(100,116,139,0.12)">?</div>
+          <div class="gender-stat-info">
+            <h4>${salesND.length} vendas</h4>
+            <p>Não identificado</p>
+          </div>
+        </div>
+        <div class="gender-stat-right">
+          <div class="revenue">R$ ${revND.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        </div>
+      </div>
+    `;
 
     // ====== CHART TOOLTIP STYLE ======
     const chartTooltip = {
@@ -1701,6 +1895,7 @@
           <td><span class="badge ${valueBadgeClass}">R$${sale.value}</span></td>
           <td><span class="badge badge-method">${sale.method}</span></td>
           <td><span class="badge ${channelClass}">${channelLabel}</span></td>
+          <td><span class="badge ${sale.gender === 'F' ? 'badge-f' : sale.gender === 'M' ? 'badge-m' : 'badge-neutral'}">${sale.gender === 'F' ? '♀ Fem' : sale.gender === 'M' ? '♂ Masc' : 'N/D'}</span></td>
           <td title="${sale.utm_source || ''}">${utmDisplay}</td>
           <td class="utm-cell" title="${criativo}">${criativoDisplay}</td>
           <td>${sale.state || '—'}</td>
@@ -1726,6 +1921,7 @@
           <div class="sale-card-meta">
             <span class="badge ${channelClass}">${channelLabel}</span>
             <span class="badge badge-method">${sale.method}</span>
+            <span class="badge ${sale.gender === 'F' ? 'badge-f' : sale.gender === 'M' ? 'badge-m' : 'badge-neutral'}">${sale.gender === 'F' ? '♀ Fem' : sale.gender === 'M' ? '♂ Masc' : 'N/D'}</span>
             ${sale.state ? `<span class="badge badge-neutral">${sale.state}</span>` : ''}
           </div>
           <div class="sale-card-detail">
