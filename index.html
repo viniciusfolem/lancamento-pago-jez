@@ -1264,10 +1264,16 @@
     const sales47 = checkoutSales.filter(s => s.value === 47);
     const rev27 = sales27.reduce((s, v) => s + v.value, 0);
     const rev47 = sales47.reduce((s, v) => s + v.value, 0);
-    const cac = paidSales.length > 0 ? totalFBSpent / paidSales.length : 0;
-    const roasReal = totalFBSpent > 0 ? totalRevenue / totalFBSpent : 0;
     const paidRev = paidSales.reduce((s, v) => s + v.value, 0);
     const orgRev = organicSales.reduce((s, v) => s + v.value, 0);
+    // Vendas atribuídas ao FB (utm_source com fb/instagram/facebook)
+    const fbAttributedSales = paidSales.filter(s => {
+      const src = (s.utm_source || '').toLowerCase();
+      return src.startsWith('fb') || src.startsWith('instagram_') || src.startsWith('facebook_');
+    });
+    const fbAttributedRev = fbAttributedSales.reduce((s, v) => s + v.value, 0);
+    const cacFB = fbAttributedSales.length > 0 ? totalFBSpent / fbAttributedSales.length : 0;
+    const roasPago = totalFBSpent > 0 ? paidRev / totalFBSpent : 0;
     const paidPct = ((paidSales.length / totalSales) * 100).toFixed(1);
     const orgPct = ((organicSales.length / totalSales) * 100).toFixed(1);
     const paidAvgTicket = paidSales.length > 0 ? paidRev / paidSales.length : 0;
@@ -1345,8 +1351,8 @@
     const kpiGrid = document.getElementById('kpi-grid');
     [
       { label: 'Investimento Ads', value: totalFBSpent, format: 'brl', sub: 'Total gasto Facebook Ads' },
-      { label: 'CAC (vendas pago)', value: cac, format: 'brl', sub: 'Custo por aquisição via ads' },
-      { label: 'ROAS Real', value: roasReal, format: 'x', sub: 'Receita total / Investimento' },
+      { label: 'CAC (via FB Ads)', value: cacFB, format: 'brl', sub: `${fbAttributedSales.length} vendas atribuídas ao FB` },
+      { label: 'ROAS Pago', value: roasPago, format: 'x', sub: 'Receita pago / Investimento' },
       { label: 'Lucro Pago', value: paidRev - totalFBSpent, format: 'brl', sub: 'Receita pago - Investimento' },
     ].forEach((kpi, i) => {
       const card = document.createElement('div');
@@ -1532,8 +1538,8 @@
       else if (src.startsWith('link_bio')) srcLabel = 'Link Bio';
       else if (src === 'organico' || src === 'orgânico') srcLabel = 'Orgânico';
       else if (src.startsWith('eduzz_rvp')) srcLabel = 'Eduzz (Recup.)';
-      else if (src === '') srcLabel = 'Sem UTM';
-      else if (src.includes('jlj')) srcLabel = 'Sem UTM';
+      else if (src === '') srcLabel = 'Direto (sem UTM)';
+      else if (src.includes('jlj')) srcLabel = 'Tracking Eduzz';
       else srcLabel = s.utm_source;
       sourceMap[srcLabel] = (sourceMap[srcLabel] || 0) + 1;
     });
@@ -1544,7 +1550,7 @@
       'Facebook Ads': '#EA580C', 'Kelvin': '#8B5CF6', 'Zuca': '#06B6D4',
       'Lucas': '#3B82F6', 'Gabriel': '#F59E0B', 'Jez': '#EC4899',
       'Link Bio': '#6366F1', 'Orgânico': '#22C55E',
-      'Sem UTM': '#64748B', 'Eduzz (Recup.)': '#EF4444',
+      'Direto (sem UTM)': '#64748B', 'Tracking Eduzz': '#78716C', 'Eduzz (Recup.)': '#EF4444',
     };
 
     const sourceBarsEl = document.getElementById('source-bars');

@@ -158,30 +158,25 @@ function classifySource(sale) {
   const src = (sale.utm_source || '').toLowerCase().trim();
   const campaign = (sale.utm_campaign || '').toLowerCase().trim();
 
-  // Known organic/team names
-  const organicKeywords = ['organico','orgânico','jez','jazz','kelvin','lucas','gabriel','zuca','link_bio'];
+  // 1. Campanhas pagas do Facebook sempre = Pago (mesmo com link_bio/vendedor no source)
+  if (campaign.includes('evento pago') || campaign.includes('[átila]') || campaign.includes('[ctc]')) return 'Pago';
 
-  // Check for organic/team names first
+  // 2. UTM sources do Facebook/Instagram = Pago
+  if (src.startsWith('fb') || src.startsWith('instagram_') || src.startsWith('facebook_')) return 'Pago';
+
+  // 3. Eduzz recuperação = Pago
+  if (src.startsWith('eduzz_rvp')) return 'Pago';
+
+  // 4. Nomes de vendedores e orgânico = Orgânico / Equipe Comercial
+  const organicKeywords = ['organico','orgânico','jez','jazz','kelvin','lucas','gabriel','zuca'];
   for (const kw of organicKeywords) {
     if (src === kw || src.startsWith(kw)) return 'Orgânico / Equipe Comercial';
   }
 
-  // Check for link_bio prefix
-  if (src.startsWith('link_bio')) return 'Orgânico / Equipe Comercial';
+  // 5. Link bio SEM campanha paga = Orgânico
+  if (src.startsWith('link_bio') && !campaign) return 'Orgânico / Equipe Comercial';
 
-  // Check for paid FB sources
-  if (src.startsWith('fb') || src.startsWith('instagram_') || src.startsWith('facebook_')) return 'Pago';
-
-  // Check for paid campaigns
-  if (campaign.includes('evento pago') || campaign.includes('[átila]') || campaign.includes('[ctc]')) return 'Pago';
-
-  // Check for eduzz recovery
-  if (src.startsWith('eduzz_rvp')) return 'Pago';
-
-  // Sem UTM de origem = Pago
-  if (src === '') return 'Pago';
-
-  // Tudo que não for vendedor/orgânico = Pago
+  // 6. Sem UTM ou qualquer outro = Pago
   return 'Pago';
 }
 
